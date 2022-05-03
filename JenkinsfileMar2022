@@ -48,7 +48,7 @@ sh "${mavenHome}/bin/mvn clean package"
 //Excute the SonQube Report
     /*
 stage('Excute the SonQube Report'){
-sh "${mavenHome}/bin/mvn sonar:sonar"
+sh "${mavenHome}/bin/mvn sonar:sonr"
 }
 
 //Upload Artifact into Artifactory Repo
