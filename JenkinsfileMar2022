@@ -1,3 +1,30 @@
+def sendSlackNotifications(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESS'
+
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESS') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
+
+  // Send notifications
+  slackSend (color: colorCode, message: summary)
+}
+
+
 node{
 
 echo "Job Name Is: ${env.JOB_NAME}"
@@ -5,36 +32,15 @@ echo "Node name is: ${env.NODE_NAME}"
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
 def mavenHome = tool name: 'maven3.8.4'
 
-//Get the code from GitHub Repo
-stage('CheckoutCode'){
-git branch: 'development', credentialsId: '0f2517d2-c479-436c-ba5d-564461e84452', url: 'https://github.com/Mural-Technologies/maven-web-application.git'
+try{
+}//try block closing
 
+catch(e){
+currentBuild.result = "FAILED"
+}//catch block closing
+
+finally{
+sendSlackNotifications(currentBuild.result)
 }
 
-//Do the build by using Maven Build tool
-stage('Build'){
-sh "${mavenHome}/bin/mvn clean package"
-}
-
-//Excute the SonQube Report
-    /*
-stage('Excute the SonQube Report'){
-sh "${mavenHome}/bin/mvn sonar:sonar"
-}
-
-//Upload Artifact into Artifactory Repo
-stage('uploadArtifactintoNexus'){
-sh "${mavenHome}/bin/mvn deploy"
-}
-
-//DeployApplicationIntoTomcatServer
-stage('DeployApplicationIntoTomcatServer'){
-sshagent(['6ab625c1-455c-4ecd-a688-f4af01aaabd9']) {
-    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@18.170.87.114:/opt/apache-tomcat-9.0.62/webapps/"
-
-}
-
-}
-*/
-
-}
+} //node closing
