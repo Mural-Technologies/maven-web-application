@@ -36,7 +36,7 @@ try{
 sendSlackNotifications('STARTED')
 //Get the code from GitHub Repo
 stage('CheckoutCode'){
-git branch: 'development', credentialsId: '0f2517d2-c479-436c-ba5d-564461e84452', url: 'https://github.com/Mural-Technologies/aven-web-application.git'
+git branch: 'development', credentialsId: '0f2517d2-c479-436c-ba5d-564461e84452', url: 'https://github.com/Mural-Technologies/maven-web-application.git'
 
 }
 
